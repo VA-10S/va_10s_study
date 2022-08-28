@@ -6,8 +6,7 @@ addAssignees: author
 
 # A list of team reviewers to be added to pull requests (GitHub team slug)
 reviewers:
-  - Vafront
-  - @vafront
+  - VA-10S/vafront
 
 # Number of reviewers has no impact on Github teams
 # Set 0 to add all the reviewers (default: 0)
