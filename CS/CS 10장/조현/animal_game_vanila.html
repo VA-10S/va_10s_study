@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+    <style>
+      .invisible {
+        display: none;
+      }
+
+      i {
+        color: blue;
+        padding-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" class="invisible">
+      <div string="동물이 짖습니까">
+        <div string="개"></div>
+        <div string="고양이"></div>
+      </div>
+    </div>
+
+    <div id="dialog"></div>
+    <div id="what-is-it" class="start-hidden">
+      <input id="what" type="text" />
+      <button id="done-what">이름입력 완료</button>
+    </div>
+
+    <div id="new-question" class="start-hidden">
+      <p>
+        <span id="new"></span>와(과) <span id="old"></span>을(를) 구분하기 위해 던질 수 있는 질문은 무엇입니까? 답은 "예"여야 합니다.
+      </p>
+      <input id="question" type="text" />
+      <button id="done-question">답 입력 완료</button>
+    </div>
+
+    <div id="yesno" class="start-hidden">
+      <button id="yes">예</button>
+      <button id="no">아니오</button>
+    </div>
+
+    <script>
+      (function () {
+        let $node = null;
+
+        const jQueryHelpers = {
+          appendInnerHTML: (element, innerHTML) => {
+            element.innerHTML += innerHTML;
+          },
+          hide: (selector) => {
+            [...document.querySelectorAll(selector)].forEach(element => element.classList.add('invisible'));
+          },
+          show: (selector) => {
+            [...document.querySelectorAll(selector)].forEach(element => element.classList.remove('invisible'));
+          },
+          wrap: (child, parentTag = 'div') => {
+            const $previousParent = child.parentNode;
+            const $parent = document.createElement(parentTag);
+
+            $parent.append(child);
+            $previousParent.append($parent);
+
+            return $parent;
+          },
+        };
+
+        function question(newNode, innerHtml) {
+          const $dialog = document.querySelector('#dialog');
+
+          jQueryHelpers.appendInnerHTML($dialog, innerHtml);
+
+          if (!newNode) {
+            return true;
+          }
+
+          $node = newNode; // Don't remove 이 함수에서 쓰이는 것 아님..
+
+          const question =`<p>${newNode.getAttribute('string')}${newNode.children?.length === 0 ? ' 입니까?' : '?'}</p>`;
+
+          jQueryHelpers.appendInnerHTML($dialog, question);
+        }
+
+        function restart() {
+          const $question = document.querySelector('#question');
+          const $what = document.querySelector('#what');
+          const $root = document.querySelector('#root');
+
+          jQueryHelpers.hide('.start-hidden');
+          $question.value = '';
+          $what.value = '';
+          question($root.firstElementChild, '<p>동물을 생각해보세요.</p>');
+          jQueryHelpers.show('#yesno');
+        }
+
+        function handleDoneQuestionClick() {
+          const $parent = jQueryHelpers.wrap($node, 'div');
+          const $question = document.querySelector('#question');
+          const $what = document.querySelector('#what');
+          const $sibling = document.createElement('div');
+          const $dialog = document.querySelector('#dialog');
+
+          $parent.setAttribute('string', $question.value);
+          $sibling.setAttribute('string', $what.value);
+          $parent.prepend($sibling);
+          jQueryHelpers.appendInnerHTML($dialog, '<p>고맙습니다. 기억하겠습니다.</p>')
+
+          restart();
+        }
+
+        function handleDoneWhatClick() {
+          const $what = document.querySelector('#what');
+          const $new = document.querySelector('#new');
+          const $old = document.querySelector('#old');
+          const $dialog = document.querySelector('#dialog');
+
+          jQueryHelpers.hide('#what-is-it');
+          $new.textContent = $what.value;
+          $old.textContent = $node.getAttribute('string');
+          jQueryHelpers.show('#new-question');
+
+          const $newChild = document.createElement('div');
+          $newChild.setAttribute('string', $what.value);
+          $dialog.lastElementChild.appendChild($newChild);
+        };
+
+        function handleYesClick() {
+          const $yes = document.querySelector('#yes');
+          const $dialog = document.querySelector('#dialog');
+
+          if (question($node.firstElementChild, '<i>예</i>')) {
+            jQueryHelpers.appendInnerHTML($dialog, '<div>그럴 줄 알았습니다!</div>');
+            restart();
+          }
+        }
+
+        function handleNoClick() {
+          const $dialog = document.querySelector('#dialog');
+
+          if (question($node.lastElementChild, '<i>아니요</i>')) {
+            jQueryHelpers.hide('#yesno');
+            jQueryHelpers.appendInnerHTML($dialog, '<div>졌습니다. 무슨 동물입니까?</div>');
+            jQueryHelpers.show('#what-is-it');
+          }
+        }
+
+        function initialize() {
+          const $doneQuestion = document.querySelector('#done-question');
+          const $doneWhat = document.querySelector('#done-what');
+          const $yes = document.querySelector('#yes');
+          const $no = document.querySelector('#no');
+          const $infoTreeButton = document.querySelector('#info-tree-button');
+
+          restart();
+
+          $doneQuestion.addEventListener('click', handleDoneQuestionClick);
+          $doneWhat.addEventListener('click', handleDoneWhatClick);
+          $yes.addEventListener('click', handleYesClick);
+          $no.addEventListener('click', handleNoClick);
+        }
+
+        initialize();
+      })();
+    </script>
+  </body>
+</html>
