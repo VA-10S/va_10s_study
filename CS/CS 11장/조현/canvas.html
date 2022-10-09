@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <style>
+    canvas {
+      border: 5px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas width="300" height="300"></canvas>
+  <script>
+    (function() {
+      function clear_and_draw_grid(canvas, width, height) {
+        canvas.clearRect(0, 0, width, height);
+        canvas.save();
+        canvas.setLineDash([0.001, 0.001]);
+        canvas.strokeStyle = "gray";
+        canvas.beginPath();
+
+        for (let i = 1; i < height; i++) {
+          canvas.moveTo(0, i);
+          canvas.lineTo(height, i);
+        }
+
+        for (let i = 1; i < width; i++) {
+          canvas.moveTo(i, 0);
+          canvas.lineTo(i, width);
+        }
+
+        canvas.stroke();
+        canvas.restore();
+      }
+
+      function draw_line(canvas, width, height) {
+        for (let i = 0; i <= width; i++) {
+          canvas.beginPath();
+          canvas.fillStyle = "gold";
+          canvas.arc(i, i, 0.3, 0, 2 * Math.PI, 0);
+          canvas.fill();
+
+          canvas.beginPath();
+          canvas.fillStyle = "tomato";
+          canvas.arc(i, 10, 0.25, 0, 2 * Math.PI, 0);
+          canvas.fill();
+        }
+      }
+
+      function draw_line_with_floating_point(canvas, width, height) {
+        const y = 3;
+        const m = y / width;
+
+        canvas.beginPath();
+        canvas.moveTo(0, 0);
+        canvas.setLineDash([0.2, 0.2]); // 파선
+        canvas.lineTo(width, y);
+        canvas.stroke();
+        canvas.fillStyle = "cyan";
+
+        for (let x = 0; x <= width; x++) {
+          canvas.beginPath();
+          canvas.arc(x, Math.round(x * m), 0.25, 0, 2 * Math.PI, 0);
+          canvas.fill();
+        }
+      }
+
+      function main() {
+        const $canvas = document.querySelector('canvas');
+        const context = $canvas.getContext('2d');
+        const grid = 10;
+        let height = $canvas.height;
+        let width = $canvas.width;
+
+        // context.translate(0, height);
+        // context.scale(1, -1);
+        context.scale(grid, grid);
+
+        width = width / grid;
+        height = height / grid;
+        context.lineWidth = context.lineWidth / grid;
+        context.strokeStyle = "blue";
+
+        clear_and_draw_grid(context, width, height);
+        draw_line(context, width, height);
+        draw_line_with_floating_point(context, width, height);
+      };
+
+      main();
+    })();
+   </script>
+</body>
+</html>
